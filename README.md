@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# Frontend - Sistema de Gestión de Envíos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend para el sistema de logística y gestión de envíos marítimos y terrestres.
 
-Currently, two official plugins are available:
+## Tecnologías y Librerías
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Core
+- **React 19** - Biblioteca UI principal
+- **TypeScript 6** - Tipado estático
+- **Vite 8** - Build tool y servidor de desarrollo
 
-## React Compiler
+### Estado y Datos
+- **Axios** - Cliente HTTP para comunicación con API REST
+- **React Hook Form** - Gestión de formularios
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### UI/CSS
+- **Tailwind CSS 4** - Framework de estilos utility-first
+- **Lucide React** - Iconos
+- **clsx + tailwind-merge** - Utilidades para combinar clases
 
-## Expanding the ESLint configuration
+### Routing
+- **React Router DOM 7** - Enrutamiento del lado del cliente
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Estructura del Proyecto
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   └── ui/           # Componentes base (Button, Input, Table, etc.)
+├── pages/             # Páginas de la aplicación
+├── services/         # Servicios API (CRUD para cada entidad)
+├── lib/             # Utilidades (apiClient, etc.)
+├── config/           # Configuraciones
+└── App.tsx          # Componente principal con rutas
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Instalación
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Instalar dependencias:
+```bash
+npm install
 ```
+
+2. Configurar variables de entorno en `.env`:
+```env
+VITE_API_URL=http://localhost:3000/api/v1
+```
+
+## Uso en Local
+
+### Desarrollo
+```bash
+npm run dev
+```
+Inicia el servidor en `http://localhost:5173`
+
+### Build producción
+```bash
+npm run build
+```
+
+### Preview build
+```bash
+npm run preview
+```
+
+### Linting
+```bash
+npm run lint
+```
+
+
+## Decisiones de Diseño
+
+### Campos denormalizados
+Los envíos incluyen campos redundantes (`clientName`, `clientDocument`, `productName`, `destinationPortName`, `destinationWarehouseName`) para evitar consultas adicionales y mantener datos incluso si se eliminan registros relacionados.
+
+### Autenticación
+- Token JWT almacenado en localStorage
+- Interceptor en apiClient para agregar token automáticamente
+- Redirección automática a login en401
+
+### Protección de rutas
+- RoleGuard para restringir acceso por rol
+- AuthGuard para proteger rutas autenticadas

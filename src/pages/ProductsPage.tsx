@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +18,6 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormData>();
 
   useEffect(() => {
@@ -72,11 +70,6 @@ export default function ProductsPage() {
     reset({ name: '', description: '' });
   };
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -96,23 +89,12 @@ export default function ProductsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Productos</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                className="pl-10 w-64" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+          <CardTitle>Lista de Productos</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Cargando...</div>
-          ) : filteredProducts.length === 0 ? (
+          ) : products.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               No hay productos registrados
             </div>
@@ -127,7 +109,7 @@ export default function ProductsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>{product.id}</TableCell>
                     <TableCell>{product.name}</TableCell>

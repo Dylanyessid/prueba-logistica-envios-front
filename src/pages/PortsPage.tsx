@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,9 +19,7 @@ export default function PortsPage() {
   const [ports, setPorts] = useState<Port[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPort, setEditingPort] = useState<Port | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
+const [editingPort, setEditingPort] = useState<Port | null>(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<PortFormData>();
 
   useEffect(() => {
@@ -77,14 +75,7 @@ export default function PortsPage() {
     setIsModalOpen(false);
     setEditingPort(null);
     reset({ name: '', country: '', city: '', type: 'national' });
-  };
-
-  const filteredPorts = ports.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.city.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+};
   const getTypeLabel = (type: string) => {
     return type === 'national' ? 'Nacional' : 'Internacional';
   };
@@ -108,23 +99,12 @@ export default function PortsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Puertos</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                className="pl-10 w-64" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+          <CardTitle>Lista de Puertos</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Cargando...</div>
-          ) : filteredPorts.length === 0 ? (
+          ) : ports.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               No hay puertos registrados
             </div>
@@ -141,7 +121,7 @@ export default function PortsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPorts.map((port) => (
+                {ports.map((port) => (
                   <TableRow key={port.id}>
                     <TableCell>{port.id}</TableCell>
                     <TableCell>{port.name}</TableCell>

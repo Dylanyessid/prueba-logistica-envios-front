@@ -4,13 +4,20 @@ export interface LandShipment {
   id: number;
   clientId: number;
   productId: number;
+  productName?: string;
   destinationWarehouseId: number;
+  destinationWarehouseName?: string;
   productQuantity: number;
   shippingPrice: number;
+  discountPercentage: number;
+  discountAmount: number;
+  finalPrice: number;
   vehiclePlate: string;
   trackingNumber: string;
   registrationDate: string;
   deliveryDate: string;
+  clientName?: string;
+  clientDocument?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -25,6 +32,9 @@ interface CreateLandShipmentData {
   trackingNumber: string;
   registrationDate: string;
   deliveryDate: string;
+  discountPercentage?: number;
+  discountAmount?: number;
+  finalPrice?: number;
 }
 
 interface ApiResponse<T> {

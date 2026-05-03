@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,9 +20,7 @@ export default function WarehousesPage() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
+const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<WarehouseFormData>();
 
   useEffect(() => {
@@ -75,17 +73,11 @@ export default function WarehousesPage() {
     }
   };
 
-  const closeModal = () => {
+const closeModal = () => {
     setIsModalOpen(false);
     setEditingWarehouse(null);
     reset({ name: '', address: '', country: '', city: '', capacity: 0 });
   };
-
-  const filteredWarehouses = warehouses.filter(w =>
-    w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    w.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    w.city.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="p-6 space-y-6">
@@ -106,23 +98,12 @@ export default function WarehousesPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Bodegas</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                className="pl-10 w-64" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+          <CardTitle>Lista de Bodegas</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Cargando...</div>
-          ) : filteredWarehouses.length === 0 ? (
+          ) : warehouses.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               No hay bodegas registradas
             </div>
@@ -140,7 +121,7 @@ export default function WarehousesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredWarehouses.map((warehouse) => (
+                {warehouses.map((warehouse) => (
                   <TableRow key={warehouse.id}>
                     <TableCell>{warehouse.id}</TableCell>
                     <TableCell>{warehouse.name}</TableCell>

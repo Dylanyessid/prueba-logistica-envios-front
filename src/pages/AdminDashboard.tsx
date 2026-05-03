@@ -16,7 +16,7 @@ const menuItems: MenuItem[] = [
   { path: '/admin/products', label: 'Productos', icon: Package, description: 'Gestión de productos' },
   { path: '/admin/ports', label: 'Puertos', icon: Anchor, description: 'Gestión de puertos marítimos', requiredRole: 'admin' },
   { path: '/admin/warehouses', label: 'Bodegas', icon: Warehouse, description: 'Gestión de almacenes', requiredRole: 'admin' },
-  { path: '/admin/clients', label: 'Clientes', icon: Users, description: 'Gestión de clientes' },
+  { path: '/admin/clients', label: 'Clientes', icon: Users, description: 'Gestión de clientes', requiredRole: 'admin' },
   { path: '/admin/land-shipments', label: 'Envíos Terrestres', icon: Truck, description: 'Gestión de envíos por tierra' },
   { path: '/admin/sea-shipments', label: 'Envíos Marítimos', icon: Ship, description: 'Gestión de envíos por mar' },
 ];

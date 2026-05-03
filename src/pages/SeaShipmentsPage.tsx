@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +31,8 @@ export default function SeaShipmentsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingShipment, setEditingShipment] = useState<SeaShipment | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<SeaShipment | null>(null);
   const clientId = authService.getClientId();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SeaShipmentFormData>();
@@ -120,16 +121,8 @@ export default function SeaShipmentsPage() {
       trackingNumber: '',
       registrationDate: '',
       deliveryDate: ''
-    });
+});
   };
-
-  const filteredShipments = shipments.filter(s =>
-    s.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.fleetNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const getProductName = (id: number) => products.find(p => p.id === id)?.name || id.toString();
-  const getPortName = (id: number) => ports.find(p => p.id === id)?.name || id.toString();
 
   return (
     <div className="p-6 space-y-6">
@@ -150,23 +143,12 @@ export default function SeaShipmentsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Envíos Marítimos</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar por guía o flota..." 
-                className="pl-10 w-64" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+          <CardTitle>Lista de Envíos Marítimos</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Cargando...</div>
-          ) : filteredShipments.length === 0 ? (
+          ) : shipments.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               No hay envíos marítimos registrados
             </div>
@@ -175,25 +157,32 @@ export default function SeaShipmentsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>N° Guía</TableHead>
+                  <TableHead>Cliente</TableHead>
                   <TableHead>Producto</TableHead>
                   <TableHead>Cantidad</TableHead>
                   <TableHead>Puerto</TableHead>
                   <TableHead>Precio</TableHead>
-                  <TableHead>Flota</TableHead>
+                  <TableHead>Registro</TableHead>
+                  <TableHead>Entrega</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredShipments.map((shipment) => (
+                {shipments.map((shipment) => (
                   <TableRow key={shipment.id}>
                     <TableCell>{shipment.trackingNumber}</TableCell>
-                    <TableCell>{getProductName(shipment.productId)}</TableCell>
+                    <TableCell>{shipment.clientName}</TableCell>
+                    <TableCell>{shipment.productName}</TableCell>
                     <TableCell>{shipment.productQuantity}</TableCell>
-                    <TableCell>{getPortName(shipment.destinationPortId)}</TableCell>
-                    <TableCell>${shipment.shippingPrice.toFixed(2)}</TableCell>
-                    <TableCell>{shipment.fleetNumber}</TableCell>
+                    <TableCell>{shipment.destinationPortName}</TableCell>
+                    <TableCell className="font-medium text-green-600">${Number(shipment.finalPrice).toFixed(2)}</TableCell>
+                    <TableCell>{new Date(shipment.registrationDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(shipment.deliveryDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => { setSelectedShipment(shipment); setDetailModalOpen(true); }}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(shipment)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -330,6 +319,88 @@ export default function SeaShipmentsPage() {
                 <Button type="submit">{editingShipment ? 'Actualizar' : 'Guardar'}</Button>
               </div>
             </form>
+          </div>
+</div>
+      )}
+
+      {detailModalOpen && selectedShipment && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setDetailModalOpen(false)}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+              <h2 className="text-lg font-semibold">Detalles del Envío Marítimo</h2>
+              <p className="text-sm opacity-90">ID: #{selectedShipment.id}</p>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">N° Guía</p>
+                  <p className="font-medium">{selectedShipment.trackingNumber}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Número de Flota</p>
+                  <p className="font-medium">{selectedShipment.fleetNumber}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Cliente</p>
+                  <p className="font-medium">{selectedShipment.clientName}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Documento</p>
+                  <p className="font-medium">{selectedShipment.clientDocument}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Producto</p>
+                  <p className="font-medium">{selectedShipment.productName}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Cantidad</p>
+                  <p className="font-medium">{selectedShipment.productQuantity} unidades</p>
+                </div>
+              </div>
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Puerto de Destino</p>
+                <p className="font-medium">{selectedShipment.destinationPortName}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Precio Original</p>
+                  <p className="font-medium">${Number(selectedShipment.shippingPrice).toFixed(2)}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Descuento</p>
+                  <p className="font-medium text-orange-600">
+                    {selectedShipment.discountPercentage > 0 
+                      ? `${selectedShipment.discountPercentage}% ($${Number(selectedShipment.discountAmount).toFixed(2)})`
+                      : 'Sin descuento'}
+                  </p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Precio Final</p>
+                  <p className="font-medium text-green-600 text-lg">${Number(selectedShipment.finalPrice).toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Fecha de Registro</p>
+                  <p className="font-medium">{new Date(selectedShipment.registrationDate).toLocaleDateString()}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Fecha de Entrega</p>
+                  <p className="font-medium">{new Date(selectedShipment.deliveryDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
+                <div>Creado: {selectedShipment.createdAt ? new Date(selectedShipment.createdAt).toLocaleString() : 'N/A'}</div>
+                <div>Actualizado: {selectedShipment.updatedAt ? new Date(selectedShipment.updatedAt).toLocaleString() : 'N/A'}</div>
+              </div>
+            </div>
+            <div className="p-4 border-t flex justify-end">
+              <Button variant="outline" onClick={() => setDetailModalOpen(false)}>Cerrar</Button>
+            </div>
           </div>
         </div>
       )}
