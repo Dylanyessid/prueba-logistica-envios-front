@@ -34,6 +34,8 @@ export default function SeaShipmentsPage() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<SeaShipment | null>(null);
   const clientId = authService.getClientId();
+  const userRole = authService.getRole();
+  const isClient = userRole === 'client';
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SeaShipmentFormData>();
 
@@ -135,10 +137,12 @@ export default function SeaShipmentsPage() {
           </Link>
           <h2 className="text-2xl font-semibold">Gestión de Envíos Marítimos</h2>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Envío
-        </Button>
+        {isClient && (
+          <Button onClick={() => setIsModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Envío
+          </Button>
+        )}
       </div>
 
       <Card>

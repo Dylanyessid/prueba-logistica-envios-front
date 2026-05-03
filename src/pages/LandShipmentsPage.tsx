@@ -34,6 +34,8 @@ export default function LandShipmentsPage() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<LandShipment | null>(null);
   const clientId = authService.getClientId();
+  const userRole = authService.getRole();
+  const isClient = userRole === 'client';
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<LandShipmentFormData>();
 
@@ -137,10 +139,12 @@ export default function LandShipmentsPage() {
           </Link>
           <h2 className="text-2xl font-semibold">Gestión de Envíos Terrestres</h2>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Envío
-        </Button>
+        {isClient && (
+          <Button onClick={() => setIsModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Envío
+          </Button>
+        )}
       </div>
 
       <Card>
